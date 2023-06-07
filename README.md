@@ -1,1 +1,1 @@
-# skiplist
+# Skiplist implementation
