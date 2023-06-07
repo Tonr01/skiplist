@@ -92,14 +92,9 @@ static inline void set_random(void)
 
 static inline int random_level(void)
 {
-    int level = 0;
     uint32_t random_seed = (uint32_t) random();
-
-    while (random_seed && (random_seed & 1)) { // HHHH
-        random_seed >>= 1;
-        level++;
-    }
-
+    int level = __builtin_ffs(random_seed ^ -1) - 1;
+    
     return level >= SL_MAXLEVEL ? SL_MAXLEVEL - 1 : level;
 }
 
