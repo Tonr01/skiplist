@@ -1,5 +1,5 @@
 /* total number of node is 2^32
- * the level here is log2(n), which is log2(2^32) = 32
+ * the level here is log2(n), which is log2(2^32) = 32.
  */
 #define SL_MAXLEVEL 32
 
