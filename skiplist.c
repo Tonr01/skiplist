@@ -84,6 +84,11 @@ static inline void list_del(struct sl_link *node)
 
 #define list_entry(ptr, i) container_of(ptr, struct sl_node, link[i])
 
+static inline int log2_32(uint32_t x)
+{
+    return 32 - __builtin_clz(x);       
+}
+
 /* the probability set at 1/2 */
 
 static inline void set_random(void)
@@ -96,7 +101,7 @@ static inline int random_level(void)
 {
     uint32_t random_seed = (uint32_t) random();
     int level = __builtin_ffs(random_seed ^ -1) - 1;
-    
+    level = level >= log2_32(times) ? log2_32(times) : level;
     return level >= SL_MAXLEVEL ? SL_MAXLEVEL - 1 : level;
 }
 
