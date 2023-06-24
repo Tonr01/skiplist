@@ -2,6 +2,7 @@
  * the level here is log2(n), which is log2(2^32) = 32.
  */
 #define SL_MAXLEVEL 32
+#define times 100
 
 struct sl_link {
     struct sl_link *prev, *next;
@@ -24,6 +25,7 @@ int sl_erase(struct sl_list *list, int key);
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 #define compiler_barrier() asm volatile("" : : : "memory")
 
@@ -224,6 +226,29 @@ int sl_erase(struct sl_list *list, int key)
     return -EINVAL;
 }
 
+void show_list(struct sl_list *list)
+{
+	struct sl_link *pos = &list->head[list->level];
+    struct sl_link *head = &list->head[list->level];
+    
+
+    for (int j = list->level; j >= 0; j--) {
+        int cnt = 0;
+        printf("level %d = ", j);
+        pos = pos->next;
+        list_for_each_from (pos, head) {
+            struct sl_node *node = list_entry(pos, j);
+            printf("%d ->", node->key);
+            cnt++;
+        }
+        printf("tail, num of node = %d\n", cnt);
+        pos = head;
+        pos--;
+        head--;
+    }
+    printf("\n");
+}
+
 #include <assert.h>
 #include <stdio.h>
 
@@ -235,7 +260,6 @@ int sl_erase(struct sl_list *list, int key)
            "size %d\n",        \
            (int) ops, index, size)
 
-#define times 10000
 
 int main(int argc, char *argv[])
 {
@@ -244,6 +268,8 @@ int main(int argc, char *argv[])
     for (i = 0; i < times; i++)
         assert(sl_insert(list, i, &arr[i]) == 0);
     test(sl_insert(list, i, NULL), i, list->size);
+
+    show_list(list);
 
     for (i = 0; i < 10; i++) {
         arr[i] = i;
