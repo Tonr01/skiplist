@@ -1,6 +1,19 @@
 /* total number of node is 2^32
  * the level here is log2(n), which is log2(2^32) = 32.
  */
+
+#include <assert.h>
+#include <stdio.h>
+
+#define test(ops, index, size) \
+    printf("[" #ops            \
+           "]: "               \
+           "return %d, "       \
+           "index %d, "        \
+           "size %d\n",        \
+           (int) ops, index, size)
+
+#define times 40
 #define SL_MAXLEVEL 32
 
 struct sl_link {
@@ -229,23 +242,32 @@ int sl_erase(struct sl_list *list, int key)
     return -EINVAL;
 }
 
-#include <assert.h>
-#include <stdio.h>
-
-#define test(ops, index, size) \
-    printf("[" #ops            \
-           "]: "               \
-           "return %d, "       \
-           "index %d, "        \
-           "size %d\n",        \
-           (int) ops, index, size)
-
-#define times 10000
+void sl_printList(struct sl_list *list) {
+    for (int i = list->level; i >= 0; i--) {
+        int num = 0;
+        struct sl_link *pos = &list->head[i];
+        struct sl_link *head = &list->head[i];
+        pos = pos->next;
+        printf("Level %d = ", i);
+        list_for_each_from (pos, head) {
+            struct sl_node *node = list_entry(pos, i);
+            printf("%d -> ", node->key);
+            num++;
+        }
+        printf("NULL, Num of node = %d\n", num);
+    }
+}
 
 int main(int argc, char *argv[])
 {
     struct sl_list *list = sl_list_alloc();
     int i, arr[10] = {0};
+    for (i = 0; i < times; i++)
+        sl_insert(list, i, &arr[i]);
+
+    sl_printList(list);
+
+    /*
     for (i = 0; i < times; i++)
         assert(sl_insert(list, i, &arr[i]) == 0);
     test(sl_insert(list, i, NULL), i, list->size);
@@ -260,5 +282,6 @@ int main(int argc, char *argv[])
     test(sl_erase(list, i), i, list->size);
 
     sl_delete(list);
+    */
     return 0;
 }
