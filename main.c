@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
         sl_insert(list, i, &arr[i]);
 
     sl_printList(list);
+    sl_free(list);
 
     /*
     for (i = 0; i < times; i++)

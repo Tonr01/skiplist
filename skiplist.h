@@ -46,6 +46,7 @@ void *sl_search(struct sl_list *list, int key);
 int sl_insert(struct sl_list *list, int key, void *val);
 int sl_erase(struct sl_list *list, int key);
 void sl_printList(struct sl_list *list);
+void sl_free(struct sl_list *list);
 
 static inline void list_init(struct sl_link *node)
 {

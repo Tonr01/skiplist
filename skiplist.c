@@ -173,3 +173,15 @@ void sl_printList(struct sl_list *list) {
         printf("NULL, Num of node = %d\n", num);
     }
 }
+
+void sl_free(struct sl_list *list) {
+    struct sl_link *pos = &list->head[0];
+    struct sl_link *n = &list->head[0];
+    struct sl_link *head = &list->head[0];
+    pos = pos->next;
+    list_for_each_safe_from (pos, n, head) {
+        struct sl_node *node = list_entry(pos, 0);
+        free(node);
+    }
+    free(list);
+}
