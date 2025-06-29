@@ -4,96 +4,12 @@
 
 #include <assert.h>
 #include <stdio.h>
-
-#define test(ops, index, size) \
-    printf("[" #ops            \
-           "]: "               \
-           "return %d, "       \
-           "index %d, "        \
-           "size %d\n",        \
-           (int) ops, index, size)
-
-#define times 40
-#define SL_MAXLEVEL 32
-
-struct sl_link {
-    struct sl_link *prev, *next;
-};
-
-struct sl_list {
-    int size;
-    int level;
-    struct sl_link head[SL_MAXLEVEL];
-};
-
-struct sl_list *sl_list_alloc(void);
-void sl_delete(struct sl_list *list);
-void *sl_search(struct sl_list *list, int key);
-int sl_insert(struct sl_list *list, int key, void *val);
-int sl_erase(struct sl_list *list, int key);
-
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
-
-#define compiler_barrier() asm volatile("" : : : "memory")
-
-struct sl_node {
-    int key;
-    void *val;
-    struct sl_link link[0];
-};
-
-static inline void list_init(struct sl_link *node)
-{
-    node->next = node;
-    compiler_barrier();
-    node->prev = node;
-}
-
-static inline void __list_add(struct sl_link *new,
-                              struct sl_link *prev,
-                              struct sl_link *next)
-{
-    next->prev = new;
-    new->next = next;
-    new->prev = prev;
-    compiler_barrier();
-    prev->next = new;
-}
-
-static inline void list_add(struct sl_link *new, struct sl_link *prev)
-{
-    __list_add(new, prev, prev->next);
-}
-
-static inline void __list_del(struct sl_link *prev, struct sl_link *next)
-{
-    next->prev = prev;
-    compiler_barrier();
-    prev->next = next;
-}
-
-static inline void list_del(struct sl_link *node)
-{
-    __list_del(node->prev, node->next);
-    list_init(node);
-}
-
-#define list_for_each_from(pos, head) for (; pos != head; pos = pos->next)
-
-#define list_for_each_safe_from(pos, n, head) \
-    for (n = pos->next; pos != head; pos = n, n = pos->next)
-
-#define container_of(ptr, type, member)                         \
-    __extension__({                                             \
-        const __typeof__(((type *) 0)->member) *__mptr = (ptr); \
-        (type *) ((char *) __mptr - offsetof(type, member));    \
-    })
-
-#define list_entry(ptr, i) container_of(ptr, struct sl_node, link[i])
+#include "skiplist.h"
 
 /* the probability set at 1/2 */
 
@@ -108,7 +24,7 @@ static inline int random_level(void)
     int level = 0;
     uint32_t random_seed = (uint32_t) random();
 
-    while (random_seed && (random_seed & 1)) { // HHHH
+    while (random_seed && (random_seed & 1)) {
         random_seed >>= 1;
         level++;
     }
@@ -256,32 +172,4 @@ void sl_printList(struct sl_list *list) {
         }
         printf("NULL, Num of node = %d\n", num);
     }
-}
-
-int main(int argc, char *argv[])
-{
-    struct sl_list *list = sl_list_alloc();
-    int i, arr[10] = {0};
-    for (i = 0; i < times; i++)
-        sl_insert(list, i, &arr[i]);
-
-    sl_printList(list);
-
-    /*
-    for (i = 0; i < times; i++)
-        assert(sl_insert(list, i, &arr[i]) == 0);
-    test(sl_insert(list, i, NULL), i, list->size);
-
-    for (i = 0; i < 10; i++) {
-        arr[i] = i;
-        printf("%d search %d\n", i, *(int *) sl_search(list, i));
-    }
-
-    for (i = 0; i < times; i++)
-        assert(sl_erase(list, i) == 0);
-    test(sl_erase(list, i), i, list->size);
-
-    sl_delete(list);
-    */
-    return 0;
 }
