@@ -80,7 +80,7 @@ quit           # Exit the program
 
 ---
 
-## 💡 Notes
+## Notes
 
 - All memory is manually managed via `malloc`/`free`
 - Requires a C99-compatible compiler (e.g., `gcc`)
