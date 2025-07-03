@@ -19,6 +19,11 @@ static inline void set_random(void)
     srandom(time(&current_time));
 }
 
+static inline int SL_max_level(uint32_t x)
+{
+    return 32 - __builtin_clz(x);
+}
+
 static inline int random_level(void)
 {
     uint32_t random_seed = (uint32_t) random();
@@ -103,7 +108,7 @@ void *sl_search(struct sl_list *list, int key)
 
 int sl_insert(struct sl_list *list, int key, void *val)
 {
-    int i, level = random_level_enhanced();
+    int i, level = (SL_max_level(key) < random_level_enhanced()) ? SL_max_level(key) : random_level_enhanced();
     struct sl_link *pos = &list->head[level];
     struct sl_link *head = &list->head[level];
     struct sl_node *new = sl_node_alloc(key, val, level);
