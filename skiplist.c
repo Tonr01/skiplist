@@ -21,13 +21,21 @@ static inline void set_random(void)
 
 static inline int random_level(void)
 {
-    int level = 0;
     uint32_t random_seed = (uint32_t) random();
+    int level = 0;
 
     while (random_seed && (random_seed & 1)) {
         random_seed >>= 1;
         level++;
     }
+
+    return level >= SL_MAXLEVEL ? SL_MAXLEVEL - 1 : level;
+}
+
+static inline int random_level_enhanced(void) 
+{
+    uint32_t random_seed = (uint32_t) random();
+    int level = __builtin_ffs(random_seed ^ -1) - 1;
 
     return level >= SL_MAXLEVEL ? SL_MAXLEVEL - 1 : level;
 }
@@ -95,7 +103,7 @@ void *sl_search(struct sl_list *list, int key)
 
 int sl_insert(struct sl_list *list, int key, void *val)
 {
-    int i, level = random_level();
+    int i, level = random_level_enhanced();
     struct sl_link *pos = &list->head[level];
     struct sl_link *head = &list->head[level];
     struct sl_node *new = sl_node_alloc(key, val, level);
@@ -136,7 +144,7 @@ int sl_erase(struct sl_list *list, int key)
 
     for (; i >= 0; i--) {
         pos = pos->next;
-        list_for_each_safe_from(pos, n, head) { // JJJJ
+        list_for_each_safe_from(pos, n, head) {
             struct sl_node *tmp = list_entry(pos, i);
             if (tmp->key == key) {
                 for (; i >= 0; i--) {

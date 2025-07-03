@@ -6,7 +6,6 @@
            "size %d\n",        \
            (int) ops, index, size)
 
-#define times 15
 #define SL_MAXLEVEL 32
 
 #define compiler_barrier() asm volatile("" : : : "memory")
